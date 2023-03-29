@@ -7,4 +7,5 @@ import (
 type Store interface {
 	GetAvailableDesks() ([]types.Desk, error)
 	CreateDesk(desk types.BindDesk) error
+	GetAllDesks() ([]types.Desk, error)
 }

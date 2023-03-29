@@ -20,12 +20,12 @@ type Booking struct {
 }
 
 type BindDesk struct {
-	Location uint16 `json:"location"`
+	Location string `json:"location"`
 }
 
 func NewDeskFromRequest(bd BindDesk) error {
-	if bd.Location < 1 {
-		return errors.New("location must be greater than 1 :D")
+	if len(bd.Location) < 1 {
+		return errors.New("lenght location must be greater than 1 :D")
 	}
 	return nil
 }

@@ -45,7 +45,7 @@ func NewPostgresDatabase(dsn string) (*sql.DB, error) {
 	return db, nil
 }
 
-func (ps PostgresStore) GetAvailableDesks() ([]types.Desk, error) {
+func (ps *PostgresStore) GetAvailableDesks() ([]types.Desk, error) {
 	rows, err := ps.db.Query("select * from desks where availability = True;")
 	if err != nil {
 		return nil, err
@@ -66,7 +66,7 @@ func (ps PostgresStore) GetAvailableDesks() ([]types.Desk, error) {
 	return desks, nil
 }
 
-func (ps PostgresStore) CreateDesk(desk types.BindDesk) error {
+func (ps *PostgresStore) CreateDesk(desk types.BindDesk) error {
 	if err := types.NewDeskFromRequest(desk); err != nil {
 		return err
 	}
@@ -78,6 +78,27 @@ func (ps PostgresStore) CreateDesk(desk types.BindDesk) error {
 	}
 
 	return nil
+}
+
+func (ps *PostgresStore) GetAllDesks() ([]types.Desk, error) {
+	rows, err := ps.db.Query("select * from desks;")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var desks []types.Desk
+	for rows.Next() {
+		desk, err := scanDesk(rows)
+
+		if err != nil {
+			return nil, err
+		}
+
+		desks = append(desks, *desk)
+	}
+
+	return desks, nil
 }
 
 func scanDesk(rows *sql.Rows) (*types.Desk, error) {

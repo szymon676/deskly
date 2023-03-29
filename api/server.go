@@ -10,7 +10,8 @@ func Serve(store store.Store, listenaddr string) {
 	as := NewApiServer(store, listenaddr)
 
 	g.Post("/desks", makeHTTPHandler(as.handleCreateDesk))
-	g.Get("/desks", makeHTTPHandler(as.handleGetAvailableDesks))
+	g.Get("/available/desks", makeHTTPHandler(as.handleGetAvailableDesks))
+	g.Get("/desks", makeHTTPHandler(as.handleGetDesks))
 
 	g.Serve(as.listenaddr)
 }
