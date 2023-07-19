@@ -1,17 +1,53 @@
 package main
 
 import (
-	"github.com/szymon676/desk-managment/api"
-	"github.com/szymon676/desk-managment/store"
+	"log"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
-const dsn string = "host=localhost port=5432 user=postgres password=1234 dbname=desk-managment sslmode=disable"
+type Booking struct {
+	ID        int    `gorm:"primaryKey;autoIncrement"`
+	DeskID    int    `gorm:"column:desk_id"`
+	UserID    int    `gorm:"column:user_id"`
+	StartTime string `gorm:"column:start_time"`
+	EndTime   string `gorm:"column:end_time"`
+}
+
+type Storage struct {
+	db *gorm.DB
+}
+
+func NewStorage(dataSourceName string) (*Storage, error) {
+	db, err := gorm.Open(mysql.Open(dataSourceName), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.AutoMigrate(&Booking{})
+	if err != nil {
+		return nil, err
+	}
+
+	return &Storage{
+		db: db,
+	}, nil
+}
+
+func (s *Storage) CreateBooking(b *Booking) error {
+	result := s.db.Create(b)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
 
 func main() {
-	db, err := store.NewPostgresDatabase(dsn)
+	storage, err := NewStorage("username:password@tcp(host:port)/database_name")
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
-	store := store.NewPostgresStore(db)
-	api.Serve(store, "3000")
+	_ = storage
 }
