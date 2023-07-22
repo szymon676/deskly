@@ -2,6 +2,8 @@ package main
 
 import (
 	"errors"
+	"log"
+	"time"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -39,4 +41,22 @@ func (s *Storage) CreateBooking(booking *Booking) error {
 	}
 
 	return nil
+}
+
+func (s *Storage) WatchBookings() {
+	for {
+		var bookings []Booking
+
+		result := s.db.Find(&bookings)
+
+		if result.Error != nil {
+			log.Println("Error querying bookings:", result.Error)
+		} else {
+			for _, booking := range bookings {
+				log.Println(booking)
+			}
+		}
+
+		time.Sleep(5 * time.Second)
+	}
 }

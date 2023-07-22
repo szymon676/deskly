@@ -1,40 +1,25 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	"testing"
 	"time"
 
-	"github.com/testcontainers/testcontainers-go"
-	"github.com/testcontainers/testcontainers-go/wait"
+	"github.com/szymon676/betterdocker/mysql"
 )
 
 func TestCreateBooking(t *testing.T) {
-	containerReq := testcontainers.ContainerRequest{
-		Image:        "mysql:latest",
-		ExposedPorts: []string{"3306/tcp"},
-		WaitingFor:   wait.ForListeningPort("3306/tcp"),
-		Env: map[string]string{
-			"MYSQL_DATABASE":      "testing",
-			"MYSQL_ROOT_PASSWORD": "1234",
-			"MYSQL_USER":          "root",
-			"MYSQL_PASSWORD":      "1234",
-		},
+	opts := &mysql.MySQLContainerOptions{
+		Database:     "testing",
+		RootPassword: "1234",
 	}
 
-	dbContainer, _ := testcontainers.GenericContainer(
-		context.Background(),
-		testcontainers.GenericContainerRequest{
-			ContainerRequest: containerReq,
-			Started:          true,
-		},
-	)
+	container := mysql.NewMySQLContainer(opts)
+	err := container.Run()
+	if err != nil {
+		t.Fatal("failed to init testing container")
+	}
 
-	host, _ := dbContainer.Host(context.Background())
-	port, _ := dbContainer.MappedPort(context.Background(), "3306")
-
-	dsn := fmt.Sprintf("root:1234@tcp(127.%s:%s)/testing", host, port)
+	dsn := "root:1234@tcp(127.0.0.1:3306)/testing"
 	storage, err := NewStorage(dsn)
 	if err != nil {
 		panic(err)
@@ -68,4 +53,7 @@ func TestCreateBooking(t *testing.T) {
 			t.Fatal("shouldn't return err:", err)
 		}
 	})
+
+	time.Sleep(time.Second * 10)
+	container.Stop()
 }

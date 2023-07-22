@@ -17,6 +17,15 @@ type BookingRequest struct {
 	EndTime   string `gorm:"column:end_time"`
 }
 
+func NewBookingFromBookingRequest(req *BookingRequest) *Booking {
+	return &Booking{
+		DeskID:    req.DeskID,
+		UserID:    req.UserID,
+		StartTime: req.StartTime,
+		EndTime:   req.EndTime,
+	}
+}
+
 // check if booking struct is correct, if not return false if yes return true
 func VerifyBooking(booking *Booking) bool {
 	if booking.DeskID == 0 || booking.UserID == 0 {
