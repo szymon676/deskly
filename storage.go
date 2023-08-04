@@ -44,6 +44,7 @@ func (s *Storage) CreateBooking(booking *Booking) error {
 }
 
 func (s *Storage) WatchBookings() {
+	log.Println("watching bookings")
 	for {
 		var bookings []Booking
 
@@ -52,10 +53,24 @@ func (s *Storage) WatchBookings() {
 		if result.Error != nil {
 			log.Println("Error querying bookings:", result.Error)
 		} else {
+			ctime := time.Now().Format(time.ANSIC)
+			currentTime, _ := time.Parse(time.ANSIC, ctime)
+
 			for _, booking := range bookings {
-				if time.Now().Format(time.ANSIC) > booking.EndTime {
-					s.db.Delete(booking.ID)
-					log.Println("deleted booking with id:", booking.ID)
+				endTime, err := time.Parse(time.ANSIC, booking.EndTime)
+				if err != nil {
+					log.Println("Error parsing EndTime:", err)
+					continue
+				}
+
+				if currentTime.After(endTime) {
+					log.Println(booking)
+					result := s.db.Delete(&booking)
+					if result.Error != nil {
+						log.Println("Error deleting booking:", result.Error)
+					} else {
+						log.Println("deleted booking with id:", booking.ID)
+					}
 				}
 			}
 		}

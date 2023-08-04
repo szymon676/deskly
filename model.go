@@ -1,6 +1,8 @@
 package main
 
-import "time"
+import (
+	"time"
+)
 
 type Booking struct {
 	ID        int    `gorm:"primaryKey;autoIncrement"`
@@ -39,13 +41,11 @@ func VerifyBooking(booking *Booking) bool {
 func VerifyTime(booking *Booking) bool {
 	startTime, err := time.Parse(time.ANSIC, booking.StartTime)
 	if err != nil {
-		// Invalid start time format
 		return false
 	}
 
 	endTime, err := time.Parse(time.ANSIC, booking.EndTime)
 	if err != nil {
-		// Invalid end time format
 		return false
 	}
 
