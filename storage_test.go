@@ -19,6 +19,8 @@ func TestCreateBooking(t *testing.T) {
 		t.Fatal("failed to init testing container")
 	}
 
+	defer container.Stop()
+
 	dsn := "root:1234@tcp(127.0.0.1:3306)/testing"
 	storage, err := NewStorage(dsn)
 	if err != nil {
@@ -27,6 +29,9 @@ func TestCreateBooking(t *testing.T) {
 
 	// inserting incorrect booking struct
 	t.Run("test incorrect booking struct", func(t *testing.T) {
+		tx := storage.db.Begin()
+		defer tx.Rollback()
+
 		booking := &Booking{
 			DeskID:    12,
 			UserID:    91321,
@@ -41,6 +46,9 @@ func TestCreateBooking(t *testing.T) {
 
 	// inserting correct booking struct
 	t.Run("test correct booking struct", func(t *testing.T) {
+		tx := storage.db.Begin()
+		defer tx.Rollback()
+
 		booking := &Booking{
 			DeskID:    12312,
 			UserID:    91321,
@@ -53,7 +61,4 @@ func TestCreateBooking(t *testing.T) {
 			t.Fatal("shouldn't return err:", err)
 		}
 	})
-
-	time.Sleep(time.Second * 10)
-	container.Stop()
 }

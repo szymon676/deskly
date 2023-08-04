@@ -8,10 +8,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/szymon676/betterdocker/mysql"
 )
 
 func TestHandleCreateBooking(t *testing.T) {
+	// Set up the database container
 	opts := &mysql.MySQLContainerOptions{
 		Database:     "testing",
 		RootPassword: "1234",
@@ -23,11 +25,16 @@ func TestHandleCreateBooking(t *testing.T) {
 		t.Fatal("failed to init testing container")
 	}
 
+	defer container.Stop()
+
 	dsn := "root:1234@tcp(127.0.0.1:3306)/testing"
 	storage, err := NewStorage(dsn)
 	if err != nil {
 		panic(err)
 	}
+
+	tx := storage.db.Begin()
+	defer tx.Rollback()
 
 	as := apiserver{storage: storage}
 	app := as.SetupServer()
@@ -46,10 +53,10 @@ func TestHandleCreateBooking(t *testing.T) {
 	}
 
 	req := httptest.NewRequest("POST", "/booking", &b)
-	resp, _ := app.Test(req, 1)
-	if resp.StatusCode != http.StatusOK {
-		t.Fatal("expected code 200 not", resp.StatusCode)
+	resp, err := app.Test(req, 1)
+	if err != nil {
+		t.Fatal("failed to send request:", err)
 	}
 
-	container.Stop()
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "expected code 200")
 }
