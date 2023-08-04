@@ -32,13 +32,18 @@ func VerifyBooking(booking *Booking) bool {
 		return false
 	}
 
-	startTime, err := time.Parse(time.RFC3339, booking.StartTime)
+	result := VerifyTime(booking)
+	return result
+}
+
+func VerifyTime(booking *Booking) bool {
+	startTime, err := time.Parse(time.ANSIC, booking.StartTime)
 	if err != nil {
 		// Invalid start time format
 		return false
 	}
 
-	endTime, err := time.Parse(time.RFC3339, booking.EndTime)
+	endTime, err := time.Parse(time.ANSIC, booking.EndTime)
 	if err != nil {
 		// Invalid end time format
 		return false

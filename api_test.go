@@ -35,8 +35,8 @@ func TestHandleCreateBooking(t *testing.T) {
 	bookingReq := &BookingRequest{
 		DeskID:    123,
 		UserID:    321,
-		StartTime: time.Now().Add(time.Second * 15).Format(time.RFC3339),
-		EndTime:   time.Now().Add(time.Second * 30).Format(time.RFC3339),
+		StartTime: time.Now().Add(time.Second * 15).Format(time.ANSIC),
+		EndTime:   time.Now().Add(time.Second * 30).Format(time.ANSIC),
 	}
 
 	var b bytes.Buffer

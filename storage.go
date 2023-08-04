@@ -53,10 +53,12 @@ func (s *Storage) WatchBookings() {
 			log.Println("Error querying bookings:", result.Error)
 		} else {
 			for _, booking := range bookings {
-				log.Println(booking)
+				if time.Now().Format(time.ANSIC) > booking.EndTime {
+					s.db.Delete(booking.ID)
+					log.Println("deleted booking with id:", booking.ID)
+				}
 			}
 		}
-
 		time.Sleep(5 * time.Second)
 	}
 }

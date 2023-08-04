@@ -40,8 +40,8 @@ func TestVerifyBooking(t *testing.T) {
 		correctBooking := &Booking{
 			DeskID:    12312,
 			UserID:    91321,
-			StartTime: time.Now().Add(time.Second * 10).Format(time.RFC3339),
-			EndTime:   time.Now().Add(time.Second * 15).Format(time.RFC3339),
+			StartTime: time.Now().Add(time.Second * 10).Format(time.ANSIC),
+			EndTime:   time.Now().Add(time.Second * 15).Format(time.ANSIC),
 		}
 
 		ok := VerifyBooking(correctBooking)
